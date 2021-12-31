@@ -1,0 +1,43 @@
+---
+- name: Installs Nvchad on Ubuntu hosts
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+  - name: Install git
+    apt:
+      name: git
+      state: latest
+
+  - name: Install curl
+    apt:
+      name: curl
+      state: latest
+
+  - name: Download Neovim
+    ansible.builtin.shell: |
+      curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+      chmod u+x nvim.appimage
+      mv ./nvim.appimage /usr/bin/nvim 
+
+  - name: Install node (Nvchad dependency)
+    apt:
+      name: nodejs
+      state: latest
+
+  - name: Install ripgrep (Nvchad dependency)
+    apt:
+      name: ripgrep
+      state: latest
+
+  - name: Clone Nvchad repository
+    ansible.builtin.shell: |
+      git clone https://github.com/NvChad/NvChad ~/.config/nvim
+
+  - name: Install Nvchad
+    ansible.builtin.expect:
+      command: nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
+      responses:  
+        Question:
+          - :q!
+          - :q!
