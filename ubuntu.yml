@@ -19,6 +19,7 @@
       curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
       chmod u+x nvim.appimage
       mv ./nvim.appimage /usr/bin/nvim 
+      chmod 755 /usr/bin/nvim
 
   - name: Install node (Nvchad dependency)
     apt:
@@ -31,13 +32,17 @@
       state: latest
 
   - name: Clone Nvchad repository
+    become: no
     ansible.builtin.shell: |
-      git clone https://github.com/NvChad/NvChad ~/.config/nvim
+      git clone https://github.com/NvChad/NvChad /home/ubuntu/.config/nvim
 
-  - name: Install Nvchad
-    ansible.builtin.expect:
-      command: nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
-      responses:  
-        Question:
-          - :q!
-          - :q!
+  - name: Create startup script
+    ansible.builtin.copy:
+      src: ./nvstartup.sh
+      dest: /home/ubuntu/nvstartup.sh
+      mode: '755'
+
+  - name: Make startup script executable
+    ansible.builtin.shell: |
+      chmod +x /home/ubuntu/nvstartup.sh
+    
